@@ -311,8 +311,8 @@ nginx_conf_add(){
     }
     server {
         listen 80;
-        server_name www.fizzeleven.com;
-        return 301 https://www.fizzeleven.com\$request_uri;
+        server_name serveraddr.com;
+        return 301 https://use.shadowsocksr.win\$request_uri;
     }
 EOF
 

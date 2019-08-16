@@ -260,11 +260,11 @@ port_exist_check(){
     fi
 }
 acme(){
-    ~/.acme.sh/acme.sh --issue -d ${domain} --standalone -k ec-256 --force
+    ~/.acme.sh/acme.sh --issue -d ${domain} -d www.fizzeleven.com --standalone -k ec-256 --force
     if [[ $? -eq 0 ]];then
         echo -e "${OK} ${GreenBG} SSL 证书生成成功 ${Font}"
         sleep 2
-        ~/.acme.sh/acme.sh --installcert -d ${domain} --fullchainpath /etc/v2ray/v2ray.crt --keypath /etc/v2ray/v2ray.key --ecc
+        ~/.acme.sh/acme.sh --installcert -d ${domain} -d www.fizzeleven.com --fullchainpath /etc/v2ray/v2ray.crt --keypath /etc/v2ray/v2ray.key --ecc
         if [[ $? -eq 0 ]];then
         echo -e "${OK} ${GreenBG} 证书配置成功 ${Font}"
         sleep 2
@@ -276,7 +276,7 @@ acme(){
 }
 v2ray_conf_add(){
     cd /etc/v2ray
-    wget https://raw.githubusercontent.com/wulabing/V2Ray_ws-tls_bash_onekey/master/tls/config.json -O config.json
+    wget https://raw.githubusercontent.com/Nopoint11/-8_ws-tls_bash_onekey/master/tls/config.json -O config.json
 modify_port_UUID
 judge "V2ray 配置修改"
 }
@@ -308,6 +308,11 @@ nginx_conf_add(){
         listen 80;
         server_name serveraddr.com;
         return 301 https://use.shadowsocksr.win\$request_uri;
+    }
+    server {
+        listen 80;
+        server_name www.fizzeleven.com;
+        return 301 https://www.fizzeleven.com$request_uri;
     }
 EOF
 

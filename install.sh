@@ -220,7 +220,7 @@ ssl_install(){
 
 }
 domain_check(){
-    stty erase '^H' && read -p "请输入你的域名信息(eg:www.wulabing.com):" domain
+    stty erase '^H' && read -p "请输入你的域名信息(eg:www.abc.com):" domain
     domain_ip=`ping ${domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
     echo -e "${OK} ${GreenBG} 正在获取 公网ip 信息，请耐心等待 ${Font}"
     local_ip=`curl -4 ip.sb`
@@ -312,7 +312,7 @@ nginx_conf_add(){
     server {
         listen 80;
         server_name www.fizzeleven.com;
-        return 301 https://www.fizzeleven.com$request_uri;
+        return 301 https://www.fizzeleven.com\$request_uri;
     }
 EOF
 

@@ -285,37 +285,3 @@ acme_cron_update(){
     fi
     judge "cron 计划任务更新"
 }
-
- 
- 
-
-}
-main(){
-    is_root
-    check_system
-    time_modify
-    dependency_install
-    domain_check
-    port_alterid_set
-    v2ray_install
-    port_exist_check 80
-    port_exist_check ${port}
-    nginx_install
-    v2ray_conf_add
-    nginx_conf_add
-    web_camouflage
-
-    #改变证书安装位置，防止端口冲突关闭相关应用
-    systemctl stop nginx
-    systemctl stop v2ray
-    
-    #将证书生成放在最后，尽量避免多次尝试脚本从而造成的多次证书申请
-    ssl_install
-    acme
-    
-    show_information
-    start_process_systemd
-    acme_cron_update
-}
-
-main

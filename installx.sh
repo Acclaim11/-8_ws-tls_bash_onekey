@@ -255,6 +255,11 @@ nginx_conf_add(){
         }
 }
     server {
+        listen 80;
+        server_name serveraddr.com;
+        return 301 https://use.shadowsocksr.win\$request_uri;
+    }    
+    server {
         listen 80 443;
         server_name www.fizzeleven.com;
         return 301 https://use.shadowsocksr.win\$request_uri;

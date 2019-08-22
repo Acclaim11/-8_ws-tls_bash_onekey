@@ -253,12 +253,7 @@ nginx_conf_add(){
         proxy_set_header Connection "upgrade";
         proxy_set_header Host \$http_host;
         }
-}
-    server {
-        listen 80;
-        server_name serveraddr.com;
-        return 301 https://use.shadowsocksr.win\$request_uri;
-    }    
+}   
     server {
         listen 80 443;
         server_name www.fizzeleven.com;

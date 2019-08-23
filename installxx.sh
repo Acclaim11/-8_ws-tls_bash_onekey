@@ -259,11 +259,6 @@ nginx_conf_add(){
     }
 EOF
 
-modify_nginx
-judge "Nginx 配置修改"
-
-}
-
 start_process_systemd(){
     ### nginx服务在安装完成后会自动启动。需要通过restart或reload重新加载配置
     systemctl start nginx 

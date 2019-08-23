@@ -22,7 +22,6 @@ Info="${Green}[信息]${Font}"
 OK="${Green}[OK]${Font}"
 Error="${Red}[错误]${Font}"
 
-v2ray_conf_dir="/etc/v2ray"
 nginx_conf_dir="/etc/nginx/conf.d"
 nginx_conf="${nginx_conf_dir}/v2ray.conf"
 
@@ -195,7 +194,7 @@ acme(){
     if [[ $? -eq 0 ]];then
         echo -e "${OK} ${GreenBG} SSL 证书生成成功 ${Font}"
         sleep 2
-        ~/.acme.sh/acme.sh --installcert -d ${domain} --fullchainpath /etc/v2ray/v2ray.crt --keypath /etc/v2ray/v2ray.key --ecc
+        ~/.acme.sh/acme.sh --installcert -d ${domain} --fullchainpath /etc/v2ray.crt --keypath /etc/v2ray.key --ecc
         if [[ $? -eq 0 ]];then
         echo -e "${OK} ${GreenBG} 证书配置成功 ${Font}"
         sleep 2
@@ -227,8 +226,6 @@ main(){
     port_exist_check ${port}
 
     #改变证书安装位置，防止端口冲突关闭相关应用
-    systemctl stop nginx
-    systemctl stop v2ray
     
     #将证书生成放在最后，尽量避免多次尝试脚本从而造成的多次证书申请
     ssl_install

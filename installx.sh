@@ -47,7 +47,6 @@ ntpdate_install(){
     if [[ "${ID}" == "centos" ]];then
         ${INS} install ntpdate -y
     else
-        ${INS} update
         ${INS} install ntpdate -y
     fi
     judge "安装 NTPdate 时间同步服务 "

@@ -147,7 +147,7 @@ modify_nginx(){
         cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
     fi
     sed -i "1,/listen/{s/listen 443 ssl;/listen ${port} ssl;/}" ${nginx_conf}
-    sed -i "/server_name/c \\\tserver_name ${domain};" ${nginx_conf}
+    sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
 }
 nginx_install(){
     ${INS} install nginx -y

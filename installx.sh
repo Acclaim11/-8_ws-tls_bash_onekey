@@ -25,54 +25,6 @@ Error="${Red}[错误]${Font}"
 nginx_conf_dir="/etc/nginx/conf.d"
 nginx_conf="${nginx_conf_dir}/v2ray.conf"
 
-source /etc/os-release
-
-#从VERSION中提取发行版系统的英文名称，为了在debian/ubuntu下添加相对应的Nginx apt源
-VERSION=`echo ${VERSION} | awk -F "[()]" '{print $2}'`
-
-check_system(){
-    
-    if [[ "${ID}" == "centos" && ${VERSION_ID} -ge 7 ]];then
-        echo -e "${OK} ${GreenBG} 当前系统为 Centos ${VERSION_ID} ${VERSION} ${Font} "
-        INS="yum"
-        echo -e "${OK} ${GreenBG} SElinux 设置中，请耐心等待，不要进行其他操作${Font} "
-        setsebool -P httpd_can_network_connect 1
-        echo -e "${OK} ${GreenBG} SElinux 设置完成 ${Font} "
-        ## Centos 也可以通过添加 epel 仓库来安装，目前不做改动
-        cat>/etc/yum.repos.d/nginx.repo<<EOF
-[nginx]
-name=nginx repo
-baseurl=http://nginx.org/packages/mainline/centos/7/\$basearch/
-gpgcheck=0
-enabled=1
-EOF
-        echo -e "${OK} ${GreenBG} Nginx 源 安装完成 ${Font}" 
-    elif [[ "${ID}" == "debian" && ${VERSION_ID} -ge 8 ]];then
-        echo -e "${OK} ${GreenBG} 当前系统为 Debian ${VERSION_ID} ${VERSION} ${Font} "
-        INS="apt"
-        ## 添加 Nginx apt源
-        if [ ! -f nginx_signing.key ];then
-        echo "deb http://nginx.org/packages/mainline/debian/ ${VERSION} nginx" >> /etc/apt/sources.list
-        echo "deb-src http://nginx.org/packages/mainline/debian/ ${VERSION} nginx" >> /etc/apt/sources.list
-        wget -nc https://nginx.org/keys/nginx_signing.key
-        apt-key add nginx_signing.key
-        fi
-    elif [[ "${ID}" == "ubuntu" && `echo "${VERSION_ID}" | cut -d '.' -f1` -ge 16 ]];then
-        echo -e "${OK} ${GreenBG} 当前系统为 Ubuntu ${VERSION_ID} ${VERSION_CODENAME} ${Font} "
-        INS="apt"
-        ## 添加 Nginx apt源
-        if [ ! -f nginx_signing.key ];then
-        echo "deb http://nginx.org/packages/mainline/ubuntu/ ${VERSION_CODENAME} nginx" >> /etc/apt/sources.list
-        echo "deb-src http://nginx.org/packages/mainline/ubuntu/ ${VERSION_CODENAME} nginx" >> /etc/apt/sources.list
-        wget -nc https://nginx.org/keys/nginx_signing.key
-        apt-key add nginx_signing.key
-        fi
-    else
-        echo -e "${Error} ${RedBG} 当前系统为 ${ID} ${VERSION_ID} 不在支持的系统列表内，安装中断 ${Font} "
-        exit 1
-    fi
-
-}
 is_root(){
     if [ `id -u` == 0 ]
         then echo -e "${OK} ${GreenBG} 当前用户是root用户，进入安装流程 ${Font} "
@@ -174,21 +126,6 @@ domain_check(){
         esac
     fi
 }
-
-port_exist_check(){
-    if [[ 0 -eq `lsof -i:"$1" | wc -l` ]];then
-        echo -e "${OK} ${GreenBG} $1 端口未被占用 ${Font}"
-        sleep 1
-    else
-        echo -e "${Error} ${RedBG} 检测到 $1 端口被占用，以下为 $1 端口占用信息 ${Font}"
-        lsof -i:"$1"
-        echo -e "${OK} ${GreenBG} 5s 后将尝试自动 kill 占用进程 ${Font}"
-        sleep 5
-        lsof -i:"$1" | awk '{print $2}'| grep -v "PID" | xargs kill -9
-        echo -e "${OK} ${GreenBG} kill 完成 ${Font}"
-        sleep 1
-    fi
-}
 acme(){
     ~/.acme.sh/acme.sh --issue -d ${domain} --standalone -k ec-256 --force
     if [[ $? -eq 0 ]];then
@@ -218,14 +155,12 @@ acme_cron_update(){
 
 main(){
     is_root
-    check_system
     time_modify
     dependency_install
     domain_check
-    port_exist_check 80
-    port_exist_check ${port}
 
     #改变证书安装位置，防止端口冲突关闭相关应用
+    systemctl stop nginx
     
     #将证书生成放在最后，尽量避免多次尝试脚本从而造成的多次证书申请
     ssl_install

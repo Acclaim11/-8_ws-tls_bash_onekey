@@ -117,6 +117,10 @@ time_modify(){
         echo -e "${Error} ${RedBG} 时间同步失败，请检查ntpdate服务是否正常工作 ${Font}"
     fi 
 }
+port_set(){
+    stty erase '^H' && read -p "请输入连接端口（default:443）:" port
+    [[ -z ${port} ]] && port="443"
+}    
 dependency_install(){
     ${INS} install wget git lsof -y
 
@@ -142,6 +146,7 @@ modify_nginx(){
     if [[ -f /etc/nginx/nginx.conf.bak ]];then
         cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
     fi
+    sed -i "1,/listen/{s/listen 443 ssl;/listen ${port} ssl;/}" ${nginx_conf}
     sed -i "/server_name/c \\\tserver_name ${domain};" ${nginx_conf}
 }
 nginx_install(){
@@ -295,6 +300,7 @@ main(){
     dependency_install
     domain_check
     port_exist_check 80
+    port_exist_check ${port}    
     nginx_install
     nginx_conf_add
 

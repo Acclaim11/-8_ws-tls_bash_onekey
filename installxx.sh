@@ -137,25 +137,6 @@ dependency_install(){
     ${INS} install unzip -y
     judge "安装 unzip"
 }
-port_alterid_set(){
-    stty erase '^H' && read -p "请输入连接端口（default:443）:" port
-    [[ -z ${port} ]] && port="443"
-}
-modify_port_UUID(){
-    let PORT=$RANDOM+10000
-}
-modify_nginx(){
-    ## sed 部分地方 适应新配置修正
-    if [[ -f /etc/nginx/nginx.conf.bak ]];then
-        cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
-    fi
-    sed -i "1,/listen/{s/listen 443 ssl;/listen ${port} ssl;/}" ${nginx_conf}
-    sed -i "/server_name/c \\\tserver_name ${domain};" ${nginx_conf}
-    sed -i "/location/c \\\tlocation \/${camouflage}\/" ${nginx_conf}
-    sed -i "/proxy_pass/c \\\tproxy_pass http://127.0.0.1:${PORT};" ${nginx_conf}
-    sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
-    sed -i "27i \\\tproxy_intercept_errors on;"  /etc/nginx/nginx.conf
-}
 nginx_install(){
     ${INS} install nginx -y
     if [[ -d /etc/nginx ]];then
@@ -248,24 +229,33 @@ nginx_conf_add(){
         ssl_certificate_key   /etc/v2ray.key;
         ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers           HIGH:!aNULL:!MD5;
-        server_name           serveraddr.com;
-        index index.html index.htm;
-        root  /home/wwwroot/sCalc;
-        error_page 400 = /400.html;
-        location /ray/ 
+        server_name           fizzeleven.tk;
+        root /usr/local/searx;
+        location / 
         {
         proxy_redirect off;
-        proxy_pass http://127.0.0.1:10000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host \$http_host;
+        proxy_pass http://127.0.0.1:8888;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Remote-Port $remote_port;
+        proxy_set_header X-Forwarded-Proto $scheme;
         }
 }
     server {
         listen 80;
-        server_name serveraddr.com;
-        return 301 https://use.shadowsocksr.win\$request_uri;
+        server_name fiizzeleven.tk;
+        return 301 https://www.fizzeleven.tk$request_uri;
+    }
+    server {
+        listen 80;
+        server_name fiizzeleven.com;
+        return 301 https://www.fizzeleven.tk$request_uri;
+    }
+    server {
+        listen 443;
+        server_name fiizzeleven.com;
+        return 301 https://www.fizzeleven.tk$request_uri;
     }
 EOF
 
@@ -298,7 +288,6 @@ main(){
     dependency_install
     domain_check
     port_exist_check 80
-    port_exist_check ${port}
     nginx_install
     nginx_conf_add
 

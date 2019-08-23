@@ -7,7 +7,10 @@ bash <(curl -L -s https://raw.githubusercontent.com/Nopoint11/-8_ws-tls_bash_one
 nano /etc/nginx/conf.d/v2ray.conf
 nano /etc/nginx/nginx.conf
 
-/var/log/nginx/error.log warn
+nano /var/log/nginx/error.log warn
 
 systemctl start nginx 
 systemctl stop nginx 
+
+cd searx && screen -dmS searx python searx/webapp.py
+

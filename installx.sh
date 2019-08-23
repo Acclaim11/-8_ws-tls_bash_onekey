@@ -174,21 +174,6 @@ domain_check(){
         esac
     fi
 }
-
-port_exist_check(){
-    if [[ 0 -eq `lsof -i:"$1" | wc -l` ]];then
-        echo -e "${OK} ${GreenBG} $1 端口未被占用 ${Font}"
-        sleep 1
-    else
-        echo -e "${Error} ${RedBG} 检测到 $1 端口被占用，以下为 $1 端口占用信息 ${Font}"
-        lsof -i:"$1"
-        echo -e "${OK} ${GreenBG} 5s 后将尝试自动 kill 占用进程 ${Font}"
-        sleep 5
-        lsof -i:"$1" | awk '{print $2}'| grep -v "PID" | xargs kill -9
-        echo -e "${OK} ${GreenBG} kill 完成 ${Font}"
-        sleep 1
-    fi
-}
 acme(){
     ~/.acme.sh/acme.sh --issue -d ${domain} --standalone -k ec-256 --force
     if [[ $? -eq 0 ]];then
@@ -204,7 +189,6 @@ acme(){
         exit 1
     fi
 }
-
 acme_cron_update(){
     if [[ "${ID}" == "centos" ]];then
         sed -i "/acme.sh/c 0 0 * * 0 systemctl stop nginx && \"/root/.acme.sh\"/acme.sh --cron --home \"/root/.acme.sh\" \
@@ -222,10 +206,9 @@ main(){
     time_modify
     dependency_install
     domain_check
-    port_exist_check 80
-    port_exist_check ${port}
 
     #改变证书安装位置，防止端口冲突关闭相关应用
+    systemctl stop nginx
     
     #将证书生成放在最后，尽量避免多次尝试脚本从而造成的多次证书申请
     ssl_install

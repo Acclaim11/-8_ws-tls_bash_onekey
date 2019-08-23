@@ -216,7 +216,7 @@ acme(){
     if [[ $? -eq 0 ]];then
         echo -e "${OK} ${GreenBG} SSL 证书生成成功 ${Font}"
         sleep 2
-        ~/.acme.sh/acme.sh --installcert -d ${domain} --fullchainpath /etc/v2ray/v2ray.crt --keypath /etc/v2ray/v2ray.key --ecc
+        ~/.acme.sh/acme.sh --installcert -d ${domain} --fullchainpath /etc/v2ray.crt --keypath /etc/v2ray.key --ecc
         if [[ $? -eq 0 ]];then
         echo -e "${OK} ${GreenBG} 证书配置成功 ${Font}"
         sleep 2
@@ -232,28 +232,37 @@ nginx_conf_add(){
     server {
         listen 443 ssl;
         ssl on;
-        ssl_certificate       /etc/v2ray/v2ray.crt;
-        ssl_certificate_key   /etc/v2ray/v2ray.key;
+        ssl_certificate       /etc/v2ray.crt;
+        ssl_certificate_key   /etc/v2ray.key;
         ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers           HIGH:!aNULL:!MD5;
-        server_name           serveraddr.com;
-        index index.html index.htm;
-        root  /home/wwwroot/sCalc;
-        error_page 400 = /400.html;
-        location /ray/ 
+        server_name           fizzeleven.tk;
+        root /usr/local/searx;
+        location / 
         {
         proxy_redirect off;
-        proxy_pass http://127.0.0.1:10000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host \$http_host;
+        proxy_pass http://127.0.0.1:8888;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Remote-Port $remote_port;
+        proxy_set_header X-Forwarded-Proto $scheme;
         }
 }
     server {
         listen 80;
-        server_name serveraddr.com;
-        return 301 https://use.shadowsocksr.win\$request_uri;
+        server_name fiizzeleven.tk;
+        return 301 https://www.fizzeleven.tk$request_uri;
+    }
+    server {
+        listen 80;
+        server_name fiizzeleven.com;
+        return 301 https://www.fizzeleven.tk$request_uri;
+    }
+    server {
+        listen 443;
+        server_name fiizzeleven.com;
+        return 301 https://www.fizzeleven.tk$request_uri;
     }
 EOF
 

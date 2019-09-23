@@ -4,6 +4,10 @@ bash <(curl -L -s https://raw.githubusercontent.com/Nopoint11/-8_ws-tls_bash_one
 
 bash <(curl -L -s https://raw.githubusercontent.com/Nopoint11/-8_ws-tls_bash_onekey/master/install.sh)
 
+wget --no-check-certificate -O install.sh https://raw.githubusercontent.com/Nopoint11/-8_ws-tls_bash_onekey/master/install.sh
+chmod +x install.sh
+./install.sh
+
 nano /etc/nginx/conf.d/v2ray.conf
 nano /etc/nginx/nginx.conf
 

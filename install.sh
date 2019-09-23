@@ -2,11 +2,8 @@
 
 #====================================================
 #	System Request:Debian 7+/Ubuntu 14.04+/Centos 6+
-#	Author:	wulabing
 #	Dscription: V2ray ws+tls onekey 
 #	Version: 3.3.1
-#	Blog: https://www.wulabing.com
-#	Official document: www.v2ray.com
 #====================================================
 
 Green="\033[32m" 
@@ -219,7 +216,7 @@ ssl_install(){
 
 }
 domain_check(){
-    stty erase '^H' && read -p "请输入你的域名信息(eg:www.wulabing.com):" domain
+    stty erase '^H' && read -p "请输入你的域名信息(eg:www.abc.com):" domain
     domain_ip=`ping ${domain} -c 1 | sed '1{s/[^(]*(//;s/).*//;q}'`
     echo -e "${OK} ${GreenBG} 正在获取 公网ip 信息，请耐心等待 ${Font}"
     local_ip=`curl -4 ip.sb`

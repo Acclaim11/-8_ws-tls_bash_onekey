@@ -237,7 +237,6 @@ nginx_conf_add(){
     cat>${nginx_conf_dir}/ntt.conf<<EOF
     server {
         listen 443;
-        ssl on;
         ssl_certificate       /etc/v2ray.crt;
         ssl_certificate_key   /etc/v2ray.key;
         ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;

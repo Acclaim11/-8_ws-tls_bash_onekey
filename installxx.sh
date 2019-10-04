@@ -146,7 +146,6 @@ modify_nginx(){
     if [[ -f /etc/nginx/nginx.conf.bak ]];then
         cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
     fi
-    sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
 }
 nginx_install(){
     ${INS} install nginx -y
@@ -236,7 +235,7 @@ nginx_conf_add(){
     server {
 
     listen                     80;
-    listen                     443 http2 ssl;
+    listen                     443;
 
     server_name                www.amplify11.tk;
 
@@ -245,7 +244,7 @@ nginx_conf_add(){
 
     if ($scheme = http) {
 
-        return  301 https://www.amplify11.tk\$request_uri;
+        return  301 https://www.amplify11.tk$request_uri;
 
     }
 

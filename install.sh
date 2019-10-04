@@ -138,14 +138,6 @@ port_alterid_set(){
     stty erase '^H' && read -p "请输入连接端口（default:443）:" port
     [[ -z ${port} ]] && port="443"
 }
-modify_nginx(){
-    ## sed 部分地方 适应新配置修正
-    if [[ -f /etc/nginx/nginx.conf.bak ]];then
-        cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
-    fi
-    sed -i "/server_name/c \\\tserver_name ${domain};" ${nginx_conf}
-    sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
-}
 web_camouflage(){
     ##请注意 这里和LNMP脚本的默认路径冲突，千万不要在安装了LNMP的环境下使用本脚本，否则后果自负
     rm -rf /home/wwwroot && mkdir -p /home/wwwroot && cd /home/wwwroot
@@ -244,7 +236,7 @@ nginx_conf_add(){
         ssl_certificate_key   /etc/v2ray.key;
         ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers           HIGH:!aNULL:!MD5;
-        server_name           serveraddr.com;
+        server_name           www.fizzeleven.ml;
         index index.html index.htm;
         root  /home/wwwroot/sCalc;
         error_page 400 = /400.html;
@@ -252,8 +244,8 @@ nginx_conf_add(){
 }
     server {
         listen 80;
-        server_name serveraddr.com;
-        return 301 https://www.serveraddr.com\$request_uri;
+        server_name www.fizzeleven.ml;
+        return 301 https://www.fizzeleven.ml$request_uri;
     }
 EOF
 

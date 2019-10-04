@@ -4,6 +4,9 @@ bash <(curl -L -s https://raw.githubusercontent.com/Nopoint11/-8_ws-tls_bash_one
 
 bash <(curl -L -s https://raw.githubusercontent.com/Nopoint11/-8_ws-tls_bash_onekey/master/install.sh)
 
+bash <(curl -L -s https://raw.githubusercontent.com/Nopoint11/-8_ws-tls_bash_onekey/master/installxxx.sh)
+
+
 
 
 

@@ -138,6 +138,12 @@ port_alterid_set(){
     stty erase '^H' && read -p "请输入连接端口（default:443）:" port
     [[ -z ${port} ]] && port="443"
 }
+modify_nginx(){
+    ## sed 部分地方 适应新配置修正
+    if [[ -f /etc/nginx/nginx.conf.bak ]];then
+        cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
+    fi
+}
 web_camouflage(){
     ##请注意 这里和LNMP脚本的默认路径冲突，千万不要在安装了LNMP的环境下使用本脚本，否则后果自负
     rm -rf /home/wwwroot && mkdir -p /home/wwwroot && cd /home/wwwroot

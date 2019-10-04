@@ -19,7 +19,7 @@ OK="${Green}[OK]${Font}"
 Error="${Red}[错误]${Font}"
 
 nginx_conf_dir="/etc/nginx/conf.d"
-nginx_conf="${nginx_conf_dir}/v2ray.conf"
+nginx_conf="${nginx_conf_dir}/ntt.conf"
 
 
 source /etc/os-release
@@ -137,8 +137,6 @@ dependency_install(){
 port_alterid_set(){
     stty erase '^H' && read -p "请输入连接端口（default:443）:" port
     [[ -z ${port} ]] && port="443"
-    stty erase '^H' && read -p "请输入alterID（default:64）:" alterID
-    [[ -z ${alterID} ]] && alterID="64"
 }
 modify_nginx(){
     ## sed 部分地方 适应新配置修正
@@ -147,10 +145,7 @@ modify_nginx(){
     fi
     sed -i "1,/listen/{s/listen 443 ssl;/listen ${port} ssl;/}" ${nginx_conf}
     sed -i "/server_name/c \\\tserver_name ${domain};" ${nginx_conf}
-    sed -i "/location/c \\\tlocation \/${camouflage}\/" ${nginx_conf}
-    sed -i "/proxy_pass/c \\\tproxy_pass http://127.0.0.1:${PORT};" ${nginx_conf}
     sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
-    sed -i "27i \\\tproxy_intercept_errors on;"  /etc/nginx/nginx.conf
 }
 web_camouflage(){
     ##请注意 这里和LNMP脚本的默认路径冲突，千万不要在安装了LNMP的环境下使用本脚本，否则后果自负
@@ -230,7 +225,7 @@ acme(){
     if [[ $? -eq 0 ]];then
         echo -e "${OK} ${GreenBG} SSL 证书生成成功 ${Font}"
         sleep 2
-        ~/.acme.sh/acme.sh --installcert -d ${domain} --fullchainpath /etc/v2ray/v2ray.crt --keypath /etc/v2ray/v2ray.key --ecc
+        ~/.acme.sh/acme.sh --installcert -d ${domain} --fullchainpath /etc/v2ray.crt --keypath /etc/v2ray.key --ecc
         if [[ $? -eq 0 ]];then
         echo -e "${OK} ${GreenBG} 证书配置成功 ${Font}"
         sleep 2
@@ -241,13 +236,13 @@ acme(){
     fi
 }
 nginx_conf_add(){
-    touch ${nginx_conf_dir}/v2ray.conf
-    cat>${nginx_conf_dir}/v2ray.conf<<EOF
+    touch ${nginx_conf_dir}/ntt.conf
+    cat>${nginx_conf_dir}/ntt.conf<<EOF
     server {
         listen 443 ssl;
         ssl on;
-        ssl_certificate       /etc/v2ray/v2ray.crt;
-        ssl_certificate_key   /etc/v2ray/v2ray.key;
+        ssl_certificate       /etc/v2ray.crt;
+        ssl_certificate_key   /etc/v2ray.key;
         ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;
         ssl_ciphers           HIGH:!aNULL:!MD5;
         server_name           serveraddr.com;
@@ -259,7 +254,7 @@ nginx_conf_add(){
     server {
         listen 80;
         server_name serveraddr.com;
-        return 301 https://use.shadowsocksr.win\$request_uri;
+        return 301 https://www.abc.com\$request_uri;
     }
 EOF
 
@@ -276,8 +271,6 @@ start_process_systemd(){
     systemctl enable nginx
     judge "设置 Nginx 开机自启"
 
-    systemctl start v2ray
-    judge "V2ray 启动"
 }
 
 acme_cron_update(){
@@ -310,7 +303,6 @@ main(){
     ssl_install
     acme
     
-    show_information
     start_process_systemd
     acme_cron_update
 }

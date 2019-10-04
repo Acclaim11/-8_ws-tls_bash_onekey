@@ -242,10 +242,10 @@ nginx_conf_add(){
     ssl_certificate            /etc/v2ray.crt;
     ssl_certificate_key        /etc/v2ray.key;
 
-    if ($scheme = http) {
-
-        return  301 https://www.amplify11.tk$request_uri;
-
+     server {
+        listen 80;
+        server_name www.amplify11.tk;
+        return 301 https://www.amplify11.tk$request_uri;
     }
 
     location / {

@@ -23,7 +23,7 @@ OK="${Green}[OK]${Font}"
 Error="${Red}[错误]${Font}"
 
 nginx_conf_dir="/etc/nginx/conf.d"
-nginx_conf="${nginx_conf_dir}/v2ray.conf"
+nginx_conf="${nginx_conf_dir}/ntt.conf"
 
 source /etc/os-release
 
@@ -146,7 +146,6 @@ modify_nginx(){
     if [[ -f /etc/nginx/nginx.conf.bak ]];then
         cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
     fi
-    sed -i "1,/listen/{s/listen 443 ssl;/listen ${port} ssl;/}" ${nginx_conf}
     sed -i "/return/c \\\treturn 301 https://${domain}\$request_uri;" ${nginx_conf}
 }
 nginx_install(){
@@ -232,43 +231,31 @@ acme(){
     fi
 }
 nginx_conf_add(){
-    touch ${nginx_conf_dir}/v2ray.conf
-    cat>${nginx_conf_dir}/v2ray.conf<<EOF
+    touch ${nginx_conf_dir}/ntt.conf
+    cat>${nginx_conf_dir}/ntt.conf<<EOF
     server {
-        listen 443 ssl;
-        ssl on;
-        ssl_certificate       /etc/v2ray.crt;
-        ssl_certificate_key   /etc/v2ray.key;
-        ssl_protocols         TLSv1 TLSv1.1 TLSv1.2;
-        ssl_ciphers           HIGH:!aNULL:!MD5;
-        server_name           fizzeleven.tk;
-        root /usr/local/searx;
-        location / 
-        {
-          proxy_redirect off;
-          proxy_pass http://127.0.0.1:8888;
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Remote-Port $remote_port;
-          proxy_set_header X-Forwarded-Proto $scheme;
-        }
+
+    listen                     80;
+    listen                     443 http2 ssl;
+
+    server_name                www.amplify11.tk;
+
+    ssl_certificate            /etc/v2ray.crt;
+    ssl_certificate_key        /etc/v2ray.key;
+
+    if ($scheme = http) {
+
+        return  301 https://www.amplify11.tk\$request_uri;
+
+    }
+
+    location / {
+
+        proxy_pass http://unix:/var/run/ntt.sock;
+
+    }
+
 }
-    server {
-        listen 80;
-        server_name fiizzeleven.tk;
-        return 301 https://www.fizzeleven.tk$request_uri;
-    }
-    server {
-        listen 80;
-        server_name fiizzeleven.com;
-        return 301 https://www.fizzeleven.tk$request_uri;
-    }
-    server {
-        listen 443;
-        server_name fiizzeleven.com;
-        return 301 https://www.fizzeleven.tk$request_uri;
-    }
 EOF
 
 modify_nginx

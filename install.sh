@@ -18,13 +18,9 @@ Info="${Green}[信息]${Font}"
 OK="${Green}[OK]${Font}"
 Error="${Red}[错误]${Font}"
 
-v2ray_conf_dir="/etc/v2ray"
 nginx_conf_dir="/etc/nginx/conf.d"
-v2ray_conf="${v2ray_conf_dir}/config.json"
 nginx_conf="${nginx_conf_dir}/v2ray.conf"
 
-#生成伪装路径
-camouflage=`cat /dev/urandom | head -n 10 | md5sum | head -c 8`
 
 source /etc/os-release
 
@@ -144,14 +140,6 @@ port_alterid_set(){
     stty erase '^H' && read -p "请输入alterID（default:64）:" alterID
     [[ -z ${alterID} ]] && alterID="64"
 }
-modify_port_UUID(){
-    let PORT=$RANDOM+10000
-    UUID=$(cat /proc/sys/kernel/random/uuid)
-    sed -i "/\"port\"/c  \    \"port\":${PORT}," ${v2ray_conf}
-    sed -i "/\"id\"/c \\\t  \"id\":\"${UUID}\"," ${v2ray_conf}
-    sed -i "/\"alterId\"/c \\\t  \"alterId\":${alterID}" ${v2ray_conf}
-    sed -i "/\"path\"/c \\\t  \"path\":\"\/${camouflage}\/\"" ${v2ray_conf}
-}
 modify_nginx(){
     ## sed 部分地方 适应新配置修正
     if [[ -f /etc/nginx/nginx.conf.bak ]];then
@@ -168,25 +156,7 @@ web_camouflage(){
     ##请注意 这里和LNMP脚本的默认路径冲突，千万不要在安装了LNMP的环境下使用本脚本，否则后果自负
     rm -rf /home/wwwroot && mkdir -p /home/wwwroot && cd /home/wwwroot
     git clone https://github.com/Nopoint11/sCalc.git
-    judge "web 站点伪装"   
-}
-v2ray_install(){
-    if [[ -d /root/v2ray ]];then
-        rm -rf /root/v2ray
-    fi
-
-    mkdir -p /root/v2ray && cd /root/v2ray
-    wget  --no-check-certificate https://install.direct/go.sh
-
-    ## wget http://install.direct/go.sh
-    
-    if [[ -f go.sh ]];then
-        bash go.sh --force
-        judge "安装 V2ray"
-    else
-        echo -e "${Error} ${RedBG} V2ray 安装文件下载失败，请检查下载地址是否可用 ${Font}"
-        exit 4
-    fi
+    judge "web 站点"   
 }
 nginx_install(){
     ${INS} install nginx -y
@@ -270,12 +240,6 @@ acme(){
         exit 1
     fi
 }
-v2ray_conf_add(){
-    cd /etc/v2ray
-    wget https://raw.githubusercontent.com/Nopoint11/V2Ray_ws-tls_bash_onekey/master/tls/config.json -O config.json
-modify_port_UUID
-judge "V2ray 配置修改"
-}
 nginx_conf_add(){
     touch ${nginx_conf_dir}/v2ray.conf
     cat>${nginx_conf_dir}/v2ray.conf<<EOF
@@ -290,15 +254,7 @@ nginx_conf_add(){
         index index.html index.htm;
         root  /home/wwwroot/sCalc;
         error_page 400 = /400.html;
-        location /ray/ 
-        {
-        proxy_redirect off;
-        proxy_pass http://127.0.0.1:10000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host \$http_host;
-        }
+        
 }
     server {
         listen 80;
@@ -334,24 +290,6 @@ acme_cron_update(){
     fi
     judge "cron 计划任务更新"
 }
-show_information(){
-    clear
-
-    echo -e "${OK} ${Green} V2ray+ws+tls 安装成功 "
-    echo -e "${Red} V2ray 配置信息 ${Font}"
-    echo -e "${Red} 地址（address）:${Font} ${domain} "
-    echo -e "${Red} 端口（port）：${Font} ${port} "
-    echo -e "${Red} 用户id（UUID）：${Font} ${UUID}"
-    echo -e "${Red} 额外id（alterId）：${Font} ${alterID}"
-    echo -e "${Red} 加密方式（security）：${Font} 自适应 "
-    echo -e "${Red} 传输协议（network）：${Font} ws "
-    echo -e "${Red} 伪装类型（type）：${Font} none "
-    echo -e "${Red} 路径（不要落下/）：${Font} /${camouflage}/ "
-    echo -e "${Red} 底层传输安全：${Font} tls "
-
-    
-
-}
 
 main(){
     is_root
@@ -359,14 +297,10 @@ main(){
     time_modify
     dependency_install
     domain_check
-    port_alterid_set
-    v2ray_install
     port_exist_check 80
     port_exist_check ${port}
     nginx_install
-    v2ray_conf_add
     nginx_conf_add
-    web_camouflage
 
     #改变证书安装位置，防止端口冲突关闭相关应用
     systemctl stop nginx

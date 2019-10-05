@@ -234,18 +234,17 @@ nginx_conf_add(){
     cat>${nginx_conf_dir}/ntt.conf<<EOF
     server {
 
-    listen                     80;
     listen                     443;
 
-    server_name                www.amplify11.tk;
+    server_name                www.fizzeleven.ml;
 
     ssl_certificate            /etc/v2ray.crt;
     ssl_certificate_key        /etc/v2ray.key;
 
      server {
         listen 80;
-        server_name www.amplify11.tk;
-        return 301 https://www.amplify11.tk$request_uri;
+        server_name www.fizzeleven.ml;
+        return 301 http://www.fizzeleven.ml$request_uri;
     }
 
     location / {

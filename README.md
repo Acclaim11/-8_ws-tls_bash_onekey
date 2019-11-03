@@ -2,7 +2,7 @@ bash <(curl -L -s https://raw.githubusercontent.com/Acclaiming/-8_ws-tls_bash_on
 
 bash <(curl -L -s https://raw.githubusercontent.com/Acclaiming/-8_ws-tls_bash_onekey/master/installxx.sh)
 
-bash <(curl -L -s https://raw.githubusercontent.com/Acclaiming/-8_ws-tls_bash_onekey/master/install.sh)
+bash <(curl -L -s https://raw.githubusercontent.com/moedogs/-8_ws-tls_bash_onekey/master/install.sh)
 
 bash <(curl -L -s https://raw.githubusercontent.com/Acclaiming/-8_ws-tls_bash_onekey/master/installxxx.sh)
 
